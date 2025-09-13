@@ -53,21 +53,24 @@ function requestNotificationPermission() {
 function notify(eventName, enabled) {
     if (enabled) klingel.play();
     if (Notification.permission === "granted") {
-        new Notification(eventName, { body: 'Time for the ' + eventName + '!', silent: false });
+        new Notification(eventName, { body: '5 minutes until the ' + eventName + '!', silent: false });
     }
 }
 
-// Schedule event with interval in hours
+// Schedule event with interval in hours, notification 5 minutes before
 function scheduleEvent(eventName, intervalHours, enabled) {
     const now = new Date();
     const next = new Date();
     next.setHours(Math.floor(now.getHours() / intervalHours) * intervalHours + intervalHours, 0, 0, 0);
+    // Subtract 5 minutes for notification
+    next.setMinutes(next.getMinutes() - 5);
+    
     let delay = next - now;
     if (delay < 0) delay += intervalHours * 3600000;
     
     setTimeout(function tick() {
         notify(eventName, enabled());
-        setTimeout(tick, intervalHours * 3600000);
+        setTimeout(tick, intervalHours * 3600000); // repeat every interval
     }, delay);
 }
 
