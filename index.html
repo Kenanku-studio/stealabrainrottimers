@@ -67,6 +67,7 @@
     <label><input type="checkbox" id="notifyEnxtinct" checked> Enxtinct Event</label><br>
     <label><input type="checkbox" id="notifyGalactic" checked> Galactic Event</label><br>
     <label><input type="checkbox" id="notifySound" checked> Play klingeltone sound</label><br>
+    <label><input type="checkbox" id="notifyPopup"> Show popup messages</label><br>
     <button class="btn" id="saveSettings">Save</button>
   </div>
 
@@ -107,7 +108,7 @@
 
     const klingelSound=document.getElementById('klingelSound');
 
-    let settings={notifyEnxtinct:true,notifyGalactic:true,notifySound:true};
+    let settings={notifyEnxtinct:true,notifyGalactic:true,notifySound:true,notifyPopup:false};
 
     function loadSettings(){
       const saved=localStorage.getItem('eventSettings');
@@ -115,20 +116,30 @@
       document.getElementById('notifyEnxtinct').checked=settings.notifyEnxtinct;
       document.getElementById('notifyGalactic').checked=settings.notifyGalactic;
       document.getElementById('notifySound').checked=settings.notifySound;
+      document.getElementById('notifyPopup').checked=settings.notifyPopup;
     }
 
     function saveSettings(){
+      const popupCheckbox=document.getElementById('notifyPopup');
+      if(popupCheckbox.checked && !settings.notifyPopup){
+        if(!confirm("Enabling popup messages will show alerts when events start. Do you want to enable this?")){
+          popupCheckbox.checked=false;
+        }
+      }
       settings={
         notifyEnxtinct:document.getElementById('notifyEnxtinct').checked,
         notifyGalactic:document.getElementById('notifyGalactic').checked,
-        notifySound:document.getElementById('notifySound').checked
+        notifySound:document.getElementById('notifySound').checked,
+        notifyPopup:document.getElementById('notifyPopup').checked
       };
       localStorage.setItem('eventSettings',JSON.stringify(settings));
       closeSettings();
     }
 
     function notifyUser(title,message){
-      alert(message);
+      if(settings.notifyPopup){
+        alert(message);
+      }
       if(Notification.permission==='granted'){
         new Notification(title,{body:message});
       }
@@ -187,10 +198,10 @@
     const panel=document.getElementById('settingsPanel');
     document.getElementById('saveSettings').addEventListener('click',saveSettings);
 
-    function openSettings(){overlay.style.display='block';panel.style.display='block';}
+    function openSettings(){loadSettings();overlay.style.display='block';panel.style.display='block';}
     function closeSettings(){overlay.style.display='none';panel.style.display='none';}
 
-    settingsBtn.addEventListener('click',()=>{loadSettings();openSettings();});
+    settingsBtn.addEventListener('click',()=>{openSettings();});
     overlay.addEventListener('click',closeSettings);
 
     // Ask permission for notifications
