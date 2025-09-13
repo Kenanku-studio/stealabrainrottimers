@@ -107,6 +107,7 @@
     const galacticStatus=document.getElementById('galacticStatus');
     const klingelSound=document.getElementById('klingelSound');
 
+    // Notifications disabled by default
     let settings={notifyEnxtinct:false,notifyGalactic:false,notifySound:true};
 
     const settingsBtn=document.getElementById('settingsBtn');
@@ -130,62 +131,4 @@
     function showCustomPopup(checkbox){
       overlay.style.display='block';
       customPopup.style.display='block';
-      allowBtn.onclick=()=>{
-        Notification.requestPermission().then(permission=>{
-          if(permission==='granted') checkbox.checked=true;
-          else checkbox.checked=false;
-          customPopup.style.display='none';
-          overlay.style.display='none';
-          settings.notifyEnxtinct=document.getElementById('notifyEnxtinct').checked;
-          settings.notifyGalactic=document.getElementById('notifyGalactic').checked;
-          localStorage.setItem('eventSettings',JSON.stringify(settings));
-        });
-      };
-      cancelBtn.onclick=()=>{
-        checkbox.checked=false;
-        customPopup.style.display='none';
-        overlay.style.display='none';
-      };
-    }
-
-    document.getElementById('notifyEnxtinct').addEventListener('change',e=>{if(e.target.checked) showCustomPopup(e.target);});
-    document.getElementById('notifyGalactic').addEventListener('change',e=>{if(e.target.checked) showCustomPopup(e.target);});
-
-    document.getElementById('saveSettings').addEventListener('click',()=>{
-      settings.notifySound=document.getElementById('notifySound').checked;
-      localStorage.setItem('eventSettings',JSON.stringify(settings));
-      closeSettings();
-    });
-
-    let lastEnxtinctStart=null;
-    let lastGalacticStart=null;
-
-    function updateAll(){
-      const now=new Date();
-
-      // Enxtinct
-      const enx=computeNextStart(now,2);
-      const diffEnx=Math.max(0,Math.floor((enx.next-now)/1000));
-      if(enx.startingNow){enxtinctStatus.style.display='inline-block';if(settings.notifyEnxtinct){if(settings.notifySound) klingelSound.play();}}
-      else enxtinctStatus.style.display='none';
-      enxtinctCountdown.textContent=pad(Math.floor(diffEnx/3600))+':'+pad(Math.floor((diffEnx%3600)/60))+':'+pad(diffEnx%60);
-      enxtinctExact.textContent='Next start at '+formatLocal(enx.next);
-
-      // Galactic
-      const gal=computeNextStart(now,1);
-      const diffGal=Math.max(0,Math.floor((gal.next-now)/1000));
-      if(gal.startingNow){galacticStatus.style.display='inline-block';if(settings.notifyGalactic){if(settings.notifySound) klingelSound.play();}}
-      else galacticStatus.style.display='none';
-      galacticCountdown.textContent=pad(Math.floor(diffGal/3600))+':'+pad(Math.floor((diffGal%3600)/60))+':'+pad(diffGal%60);
-      galacticExact.textContent='Next start at '+formatLocal(gal.next);
-    }
-
-    settingsBtn.addEventListener('click',openSettings);
-    overlay.addEventListener('click',closeSettings);
-
-    loadSettings();
-    updateAll();
-    setInterval(updateAll,1000);
-  </script>
-</body>
-</html>
+      allowBtn
