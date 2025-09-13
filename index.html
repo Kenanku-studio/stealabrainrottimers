@@ -7,18 +7,35 @@
 <style>
   body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #111; color: #eee; }
   button { padding: 10px 20px; font-size: 16px; margin-top: 20px; cursor: pointer; }
+  #countdown { font-size: 24px; margin: 20px 0; }
+  label { display: block; margin: 10px 0; }
 </style>
 </head>
 <body>
 <h1>Event Notifier</h1>
+<div id="countdown">Next Enxtinct Event in: --:--:--</div>
 <p>Enxtinct Event: Every 2 hours</p>
 <p>Galaxy Event: Every 1 hour</p>
 <button id="settingsBtn">Settings</button>
+
+<div id="settings" style="display:none; margin-top:20px; text-align:left; max-width:300px; margin:auto;">
+  <h3>Settings</h3>
+  <label><input type="checkbox" id="enxtinctSound" checked> Enable Enxtinct Event Sound</label>
+  <label><input type="checkbox" id="galaxySound" checked> Enable Galaxy Event Sound</label>
+  <button id="closeSettings">Close</button>
+</div>
 
 <audio id="klingel" src="https://www.soundjay.com/button/sounds/button-16.mp3" preload="auto"></audio>
 
 <script>
 const klingel = document.getElementById('klingel');
+const countdownEl = document.getElementById('countdown');
+
+// User settings
+let settings = {
+  enxtinct: true,
+  galaxy: true
+};
 
 // Request notification permission
 function requestNotificationPermission() {
@@ -28,35 +45,55 @@ function requestNotificationPermission() {
 }
 
 // Play sound and send notification
-function notify(eventName) {
-    klingel.play();
+function notify(eventName, enabled) {
+    if (enabled) klingel.play();
     if (Notification.permission === "granted") {
         new Notification(eventName, { body: 'Time for the ' + eventName + '!', silent: false });
     }
 }
 
-// Calculate next trigger based on interval and local time
-function scheduleEvent(eventName, intervalHours) {
+// Schedule event with interval in hours
+function scheduleEvent(eventName, intervalHours, enabled) {
     const now = new Date();
     const next = new Date();
     next.setHours(Math.floor(now.getHours() / intervalHours) * intervalHours + intervalHours, 0, 0, 0);
     let delay = next - now;
-    if (delay < 0) delay += intervalHours * 3600000; // fix if negative
+    if (delay < 0) delay += intervalHours * 3600000;
     
     setTimeout(function tick() {
-        notify(eventName);
-        setTimeout(tick, intervalHours * 3600000); // repeat
+        notify(eventName, enabled());
+        setTimeout(tick, intervalHours * 3600000);
     }, delay);
 }
 
-// Setup events
-requestNotificationPermission();
-scheduleEvent("Enxtinct Event", 2);
-scheduleEvent("Galaxy Event", 1);
+// Countdown for Enxtinct Event
+function updateCountdown() {
+    const now = new Date();
+    const next = new Date();
+    next.setHours(Math.floor(now.getHours() / 2) * 2 + 2, 0, 0, 0);
+    let diff = next - now;
+    if (diff < 0) diff += 2 * 3600000;
+    
+    const hours = String(Math.floor(diff / 3600000)).padStart(2,'0');
+    const minutes = String(Math.floor((diff % 3600000)/60000)).padStart(2,'0');
+    const seconds = String(Math.floor((diff % 60000)/1000)).padStart(2,'0');
+    countdownEl.textContent = `Next Enxtinct Event in: ${hours}:${minutes}:${seconds}`;
+}
+setInterval(updateCountdown, 1000);
 
-// Settings button (dummy for now, can expand)
+// Event scheduling
+requestNotificationPermission();
+scheduleEvent("Enxtinct Event", 2, () => settings.enxtinct);
+scheduleEvent("Galaxy Event", 1, () => settings.galaxy);
+
+// Settings button
 document.getElementById('settingsBtn').addEventListener('click', () => {
-    alert('Settings can be added here!');
+    document.getElementById('settings').style.display = 'block';
+});
+document.getElementById('closeSettings').addEventListener('click', () => {
+    settings.enxtinct = document.getElementById('enxtinctSound').checked;
+    settings.galaxy = document.getElementById('galaxySound').checked;
+    document.getElementById('settings').style.display = 'none';
 });
 </script>
 </body>
