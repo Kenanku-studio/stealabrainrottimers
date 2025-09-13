@@ -3,16 +3,16 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Enxtinct Event — 2‑hour Schedule</title>
+  <title>Event Timers — Enxtinct & Galactic</title>
   <style>
-    :root{--bg:#0f1724;--card:#0b1220;--accent:#7dd3fc;--muted:#9aa4b2;--glass:rgba(255,255,255,0.04)}
+    :root{--bg:#0f1724;--card:#0b1220;--accent:#7dd3fc;--accent2:#c084fc;--muted:#9aa4b2;--glass:rgba(255,255,255,0.04)}
     html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial}
     body{display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#071024 0%, #051426 100%);color:#e6eef6;padding:24px}
-    .card{width:100%;max-width:820px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border-radius:14px;padding:28px;box-shadow:0 6px 30px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.03)}
+    .card{width:100%;max-width:920px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border-radius:14px;padding:28px;box-shadow:0 6px 30px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.03)}
     h1{margin:0;font-size:20px;letter-spacing:0.2px}
     p.lead{color:var(--muted);margin:6px 0 18px}
 
-    .grid{display:grid;grid-template-columns:1fr 280px;gap:20px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
     @media (max-width:760px){.grid{grid-template-columns:1fr;}}
 
     .panel{background:var(--card);padding:18px;border-radius:10px;border:1px solid var(--glass)}
@@ -22,6 +22,7 @@
 
     .countdown{font-size:28px;margin-top:6px;font-weight:600}
     .status{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(125,211,252,0.12);color:var(--accent);font-weight:700;margin-left:8px;font-size:13px}
+    .status2{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(192,132,252,0.12);color:var(--accent2);font-weight:700;margin-left:8px;font-size:13px}
 
     ul.times{list-style:none;padding:0;margin:8px 0 0;display:flex;flex-wrap:wrap;gap:8px}
     ul.times li{background:rgba(255,255,255,0.02);padding:8px 10px;border-radius:8px;font-weight:600;color:#cfeefe}
@@ -38,169 +39,101 @@
 <body>
   <main class="card" role="main">
     <header>
-      <h1>Enxtinct event — every 2 hours (starts at 00:00)</h1>
-      <p class="lead">This standalone page shows local time, when the next event starts, and a live countdown. Events repeat every 2 hours at 00:00, 02:00, 04:00 ...</p>
+      <h1>Event Timers — Enxtinct & Galactic</h1>
+      <p class="lead">This page shows local time and live countdowns for two recurring events:<br>
+      • <strong>Enxtinct Event</strong>: every 2 hours (00:00, 02:00, ...)<br>
+      • <strong>Galactic Event</strong>: every 1 hour (00:00, 01:00, ...)</p>
     </header>
 
     <section class="grid">
-      <div>
-        <div class="panel">
-          <div>
-            <div class="clock" id="localClock">--:--:--</div>
-            <div class="tz" id="localTz">Time zone: --</div>
+      <div class="panel">
+        <h2>Enxtinct Event</h2>
+        <div class="clock" id="localClock">--:--:--</div>
+        <div class="tz" id="localTz">Time zone: --</div>
+        <div style="margin-top:14px">
+          <div>Next event start:</div>
+          <div style="display:flex;align-items:center">
+            <div class="countdown" id="enxtinctCountdown">—</div>
+            <div id="enxtinctStatus" class="status" style="display:none">LIVE</div>
           </div>
-
-          <div style="margin-top:14px">
-            <div>Next event start:</div>
-            <div style="display:flex;align-items:center">
-              <div class="countdown" id="nextStart">—</div>
-              <div id="status" class="status" style="display:none">LIVE</div>
-            </div>
-            <div class="note" id="nextStartExact">—</div>
-
-            <div class="controls">
-              <button id="refreshBtn">Refresh now</button>
-              <button id="copyBtn" class="primary">Copy next start (ISO)</button>
-            </div>
-          </div>
+          <div class="note" id="enxtinctExact">—</div>
         </div>
-
-        <div class="footer">Schedule explanation: events start at every even hour (00:00, 02:00, ...). The countdown shows time until the next occurrence <strong>in your browser's local time</strong>.</div>
+        <div class="footer">Enxtinct schedule: every even hour (00:00, 02:00, ...)</div>
       </div>
 
-      <aside>
-        <div class="panel">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <strong>Upcoming starts (local)</strong>
-            <small id="dateHint" style="color:var(--muted)">—</small>
+      <div class="panel">
+        <h2>Galactic Event</h2>
+        <div class="clock">Linked to local time</div>
+        <div style="margin-top:14px">
+          <div>Next event start:</div>
+          <div style="display:flex;align-items:center">
+            <div class="countdown" id="galacticCountdown">—</div>
+            <div id="galacticStatus" class="status2" style="display:none">LIVE</div>
           </div>
-          <ul class="times" id="upcomingList">
-          </ul>
-
-          <div class="note">Tip: open this file on any device — it works offline and uses the device's clock.</div>
+          <div class="note" id="galacticExact">—</div>
         </div>
-      </aside>
+        <div class="footer">Galactic schedule: every hour (00:00, 01:00, ...)</div>
+      </div>
     </section>
   </main>
 
   <script>
-    // Helper: pad
     const pad = n => String(n).padStart(2,'0');
 
-    // Returns the Date for the most recent 2-hour boundary at or before given date
-    function floorTo2Hour(d){
+    function floorToBoundary(d, intervalHours){
       const copy = new Date(d.getTime());
       const h = copy.getHours();
-      const floored = Math.floor(h/2)*2;
+      const floored = Math.floor(h/intervalHours)*intervalHours;
       copy.setHours(floored,0,0,0);
       return copy;
     }
 
-    // Returns the next start strictly after 'now' (if now is exactly at boundary with zero ms, treat as starting now and next is +2h)
-    function computeNextStart(now){
-      const last = floorTo2Hour(now);
-      // if now is earlier than last boundary (shouldn't happen) -> use last
-      if(now.getTime() < last.getTime()) return last;
-
-      // if now exactly equals boundary (hours even, minutes secs ms ==0) consider it "starting now" and next = +2h
-      if(now.getHours()%2===0 && now.getMinutes()===0 && now.getSeconds()===0 && now.getMilliseconds()===0){
-        const next = new Date(last.getTime() + 2*60*60*1000);
-        return {startingNow: true, next};
+    function computeNextStart(now, intervalHours){
+      const last = floorToBoundary(now, intervalHours);
+      if(now.getTime() < last.getTime()) return {startingNow:false, next:last};
+      if(now.getHours()%intervalHours===0 && now.getMinutes()===0 && now.getSeconds()===0 && now.getMilliseconds()===0){
+        return {startingNow:true, next:new Date(last.getTime()+intervalHours*3600000)};
       }
-
-      // otherwise next boundary is last + 2 hours
-      const next = new Date(last.getTime() + 2*60*60*1000);
-      return {startingNow: false, next};
+      return {startingNow:false, next:new Date(last.getTime()+intervalHours*3600000)};
     }
 
-    // Formats date to local human readable string
     function formatLocal(d){
       return d.toLocaleString(undefined, {year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});
     }
 
-    // Format short time like 14:00
-    function formatHourOnly(d){
-      return pad(d.getHours())+':'+pad(d.getMinutes());
-    }
-
-    const localClock = document.getElementById('localClock');
-    const localTz = document.getElementById('localTz');
-    const nextStartEl = document.getElementById('nextStart');
-    const nextStartExact = document.getElementById('nextStartExact');
-    const upcomingList = document.getElementById('upcomingList');
-    const statusEl = document.getElementById('status');
-    const dateHint = document.getElementById('dateHint');
+    const localClock=document.getElementById('localClock');
+    const localTz=document.getElementById('localTz');
+    const enxtinctCountdown=document.getElementById('enxtinctCountdown');
+    const enxtinctExact=document.getElementById('enxtinctExact');
+    const enxtinctStatus=document.getElementById('enxtinctStatus');
+    const galacticCountdown=document.getElementById('galacticCountdown');
+    const galacticExact=document.getElementById('galacticExact');
+    const galacticStatus=document.getElementById('galacticStatus');
 
     function updateAll(){
-      const now = new Date();
-      // show local clock
-      localClock.textContent = now.toLocaleTimeString();
-      try{ localTz.textContent = 'Time zone: ' + Intl.DateTimeFormat().resolvedOptions().timeZone }catch(e){localTz.textContent='Time zone: local'}
+      const now=new Date();
+      localClock.textContent=now.toLocaleTimeString();
+      try{localTz.textContent='Time zone: '+Intl.DateTimeFormat().resolvedOptions().timeZone}catch(e){localTz.textContent='Time zone: local'}
 
-      // compute next start
-      const nextObj = computeNextStart(now);
-      const next = nextObj.next || nextObj; // handle both return styles
-      const startingNow = !!nextObj.startingNow;
+      // Enxtinct (2h)
+      const enx=computeNextStart(now,2);
+      const diffEnx=enx.next.getTime()-now.getTime();
+      if(enx.startingNow){enxtinctStatus.style.display='inline-block';enxtinctStatus.textContent='STARTING NOW';}else{enxtinctStatus.style.display='none';}
+      const remEnx=Math.max(0,Math.floor(diffEnx/1000));
+      enxtinctCountdown.textContent=pad(Math.floor(remEnx/3600))+':'+pad(Math.floor((remEnx%3600)/60))+':'+pad(remEnx%60);
+      enxtinctExact.textContent='Next start: '+formatLocal(enx.next)+' — ISO: '+enx.next.toISOString();
 
-      const diffMs = next.getTime() - now.getTime();
-
-      // If startingNow true and diffMs is next - now (2h). We'll also show a small LIVE badge when the current exact boundary occurs.
-      if(startingNow && Math.abs(now - (new Date(next.getTime() - 2*60*60*1000))) < 1000){
-        // exactly on boundary
-        statusEl.style.display = 'inline-block';
-        statusEl.textContent = 'STARTING NOW';
-      } else {
-        statusEl.style.display = 'none';
-      }
-
-      // compute countdown to next start (the next variable)
-      const remaining = diffMs;
-      if(remaining <= 0){
-        nextStartEl.textContent = '00:00:00';
-      } else {
-        const total = Math.floor(remaining/1000);
-        const hh = Math.floor(total/3600);
-        const mm = Math.floor((total%3600)/60);
-        const ss = total%60;
-        nextStartEl.textContent = pad(hh)+':'+pad(mm)+':'+pad(ss);
-      }
-
-      nextStartExact.textContent = 'Next start (local): ' + formatLocal(next) + ' — ISO: ' + next.toISOString();
-
-      // upcoming list: show next 8 starts
-      upcomingList.innerHTML = '';
-      const listCount = 8;
-      // find the upcoming first (the 'next' variable)
-      let candidate = new Date(next.getTime());
-      for(let i=0;i<listCount;i++){
-        const li = document.createElement('li');
-        const d = new Date(candidate.getTime() + i*2*60*60*1000);
-        li.textContent = d.toLocaleString(undefined, {hour:'2-digit',minute:'2-digit',day:'numeric',month:'short'});
-        upcomingList.appendChild(li);
-      }
-
-      dateHint.textContent = now.toLocaleDateString();
+      // Galactic (1h)
+      const gal=computeNextStart(now,1);
+      const diffGal=gal.next.getTime()-now.getTime();
+      if(gal.startingNow){galacticStatus.style.display='inline-block';galacticStatus.textContent='STARTING NOW';}else{galacticStatus.style.display='none';}
+      const remGal=Math.max(0,Math.floor(diffGal/1000));
+      galacticCountdown.textContent=pad(Math.floor(remGal/3600))+':'+pad(Math.floor((remGal%3600)/60))+':'+pad(remGal%60);
+      galacticExact.textContent='Next start: '+formatLocal(gal.next)+' — ISO: '+gal.next.toISOString();
     }
 
-    // initial + interval
     updateAll();
-    const interval = setInterval(updateAll, 1000);
-
-    // controls
-    document.getElementById('refreshBtn').addEventListener('click', updateAll);
-    document.getElementById('copyBtn').addEventListener('click', ()=>{
-      const now = new Date();
-      const next = (computeNextStart(now).next || computeNextStart(now));
-      const iso = next.toISOString();
-      navigator.clipboard && navigator.clipboard.writeText(iso).then(()=>{
-        const old = document.getElementById('copyBtn').textContent;
-        document.getElementById('copyBtn').textContent = 'Copied!';
-        setTimeout(()=>document.getElementById('copyBtn').textContent = 'Copy next start (ISO)',1200);
-      }).catch(()=>alert('Could not copy to clipboard.'));
-    });
-
-    // Accessibility: focus first button on load
-    window.addEventListener('load', ()=>{try{document.getElementById('refreshBtn').focus()}catch(e){}});
+    setInterval(updateAll,1000);
   </script>
 </body>
 </html>
