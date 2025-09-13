@@ -7,21 +7,25 @@
 <style>
   body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #111; color: #eee; }
   button { padding: 10px 20px; font-size: 16px; margin-top: 20px; cursor: pointer; }
-  #countdown { font-size: 24px; margin: 20px 0; }
+  .countdown { font-size: 24px; margin: 20px 0; }
   label { display: block; margin: 10px 0; }
+  #settings { text-align:left; max-width:300px; margin:auto; background:#222; padding:20px; border-radius:10px; }
 </style>
 </head>
 <body>
 <h1>Event Notifier</h1>
-<div id="countdown">Next Enxtinct Event in: --:--:--</div>
+
+<div class="countdown" id="enxtinctCountdown">Next Enxtinct Event in: --:--:--</div>
+<div class="countdown" id="galaxyCountdown">Next Galaxy Spin in: --:--:--</div>
+
 <p>Enxtinct Event: Every 2 hours</p>
-<p>Galaxy Event: Every 1 hour</p>
+<p>Galaxy Spin: Every 1 hour</p>
 <button id="settingsBtn">Settings</button>
 
-<div id="settings" style="display:none; margin-top:20px; text-align:left; max-width:300px; margin:auto;">
+<div id="settings" style="display:none; margin-top:20px;">
   <h3>Settings</h3>
   <label><input type="checkbox" id="enxtinctSound" checked> Enable Enxtinct Event Sound</label>
-  <label><input type="checkbox" id="galaxySound" checked> Enable Galaxy Event Sound</label>
+  <label><input type="checkbox" id="galaxySound" checked> Enable Galaxy Spin Sound</label>
   <button id="closeSettings">Close</button>
 </div>
 
@@ -29,7 +33,8 @@
 
 <script>
 const klingel = document.getElementById('klingel');
-const countdownEl = document.getElementById('countdown');
+const enxtinctCountdownEl = document.getElementById('enxtinctCountdown');
+const galaxyCountdownEl = document.getElementById('galaxyCountdown');
 
 // User settings
 let settings = {
@@ -66,25 +71,30 @@ function scheduleEvent(eventName, intervalHours, enabled) {
     }, delay);
 }
 
-// Countdown for Enxtinct Event
-function updateCountdown() {
+// Countdown function
+function updateCountdown(countdownEl, intervalHours) {
     const now = new Date();
     const next = new Date();
-    next.setHours(Math.floor(now.getHours() / 2) * 2 + 2, 0, 0, 0);
+    next.setHours(Math.floor(now.getHours() / intervalHours) * intervalHours + intervalHours, 0, 0, 0);
     let diff = next - now;
-    if (diff < 0) diff += 2 * 3600000;
+    if (diff < 0) diff += intervalHours * 3600000;
     
     const hours = String(Math.floor(diff / 3600000)).padStart(2,'0');
     const minutes = String(Math.floor((diff % 3600000)/60000)).padStart(2,'0');
     const seconds = String(Math.floor((diff % 60000)/1000)).padStart(2,'0');
-    countdownEl.textContent = `Next Enxtinct Event in: ${hours}:${minutes}:${seconds}`;
+    countdownEl.textContent = `Next ${countdownEl.id.includes("enxtinct") ? "Enxtinct Event" : "Galaxy Spin"} in: ${hours}:${minutes}:${seconds}`;
 }
-setInterval(updateCountdown, 1000);
+
+// Update both countdowns every second
+setInterval(() => {
+    updateCountdown(enxtinctCountdownEl, 2);
+    updateCountdown(galaxyCountdownEl, 1);
+}, 1000);
 
 // Event scheduling
 requestNotificationPermission();
 scheduleEvent("Enxtinct Event", 2, () => settings.enxtinct);
-scheduleEvent("Galaxy Event", 1, () => settings.galaxy);
+scheduleEvent("Galaxy Spin", 1, () => settings.galaxy);
 
 // Settings button
 document.getElementById('settingsBtn').addEventListener('click', () => {
