@@ -67,7 +67,7 @@
     <label><input type="checkbox" id="notifyEnxtinct" checked> Enxtinct Event</label><br>
     <label><input type="checkbox" id="notifyGalactic" checked> Galactic Event</label><br>
     <label><input type="checkbox" id="notifySound" checked> Play klingeltone sound</label><br>
-    <label><input type="checkbox" id="notifyPopup"> Show popup messages</label><br>
+    <label><input type="checkbox" id="notifyPopup"> Enable system messages</label><br>
     <button class="btn" id="saveSettings">Save</button>
   </div>
 
@@ -122,25 +122,29 @@
     function saveSettings(){
       const popupCheckbox=document.getElementById('notifyPopup');
       if(popupCheckbox.checked && !settings.notifyPopup){
-        if(!confirm("Enabling popup messages will show alerts when events start. Do you want to enable this?")){
-          popupCheckbox.checked=false;
-        }
+        Notification.requestPermission().then(permission=>{
+          if(permission==='granted'){
+            settings.notifyPopup=true;
+            localStorage.setItem('eventSettings',JSON.stringify(settings));
+          } else {
+            popupCheckbox.checked=false;
+            settings.notifyPopup=false;
+          }
+        });
+      } else {
+        settings={
+          notifyEnxtinct:document.getElementById('notifyEnxtinct').checked,
+          notifyGalactic:document.getElementById('notifyGalactic').checked,
+          notifySound:document.getElementById('notifySound').checked,
+          notifyPopup:document.getElementById('notifyPopup').checked
+        };
+        localStorage.setItem('eventSettings',JSON.stringify(settings));
       }
-      settings={
-        notifyEnxtinct:document.getElementById('notifyEnxtinct').checked,
-        notifyGalactic:document.getElementById('notifyGalactic').checked,
-        notifySound:document.getElementById('notifySound').checked,
-        notifyPopup:document.getElementById('notifyPopup').checked
-      };
-      localStorage.setItem('eventSettings',JSON.stringify(settings));
       closeSettings();
     }
 
     function notifyUser(title,message){
-      if(settings.notifyPopup){
-        alert(message);
-      }
-      if(Notification.permission==='granted'){
+      if(settings.notifyPopup && Notification.permission==='granted'){
         new Notification(title,{body:message});
       }
     }
@@ -203,11 +207,6 @@
 
     settingsBtn.addEventListener('click',()=>{openSettings();});
     overlay.addEventListener('click',closeSettings);
-
-    // Ask permission for notifications
-    if("Notification" in window && Notification.permission!=='granted' && Notification.permission!=='denied'){
-      Notification.requestPermission();
-    }
 
     loadSettings();
     updateAll();
