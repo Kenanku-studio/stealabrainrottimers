@@ -1,134 +1,63 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Event Timers — Enxtinct & Galactic</title>
-  <style>
-    :root{--bg:#0f1724;--card:#0b1220;--accent:#7dd3fc;--accent2:#c084fc;--muted:#9aa4b2;--glass:rgba(255,255,255,0.04)}
-    html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial}
-    body{display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#071024 0%, #051426 100%);color:#e6eef6;padding:24px}
-    .card{width:100%;max-width:760px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border-radius:14px;padding:28px;box-shadow:0 6px 30px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.03)}
-    h1{margin:0;font-size:20px;letter-spacing:0.2px}
-    p.lead{color:var(--muted);margin:6px 0 18px}
-
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-    @media (max-width:760px){.grid{grid-template-columns:1fr;}}
-
-    .panel{background:var(--card);padding:18px;border-radius:10px;border:1px solid var(--glass)}
-
-    .countdown{font-size:32px;margin-top:6px;font-weight:700;text-align:center}
-    .status{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(125,211,252,0.12);color:var(--accent);font-weight:700;margin-left:8px;font-size:13px}
-    .status2{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(192,132,252,0.12);color:var(--accent2);font-weight:700;margin-left:8px;font-size:13px}
-
-    .note{margin-top:8px;color:var(--muted);font-size:13px;text-align:center}
-
-    #settingsPanel,#customPopup{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--card);padding:20px;border-radius:12px;border:1px solid var(--glass);z-index:1000;width:300px;text-align:center}
-    #settingsPanel h2,#customPopup h2{margin-top:0}
-    #overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:900}
-    .btn{background:var(--accent);color:#022;padding:8px 12px;border:none;border-radius:8px;cursor:pointer;font-weight:600;margin-top:10px;margin-right:8px}
-    #settingsBtn{margin-bottom:16px;cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,0.2);padding:6px 10px;border-radius:8px;color:var(--muted)}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Event Notifier</title>
+<style>
+  body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #111; color: #eee; }
+  button { padding: 10px 20px; font-size: 16px; margin-top: 20px; cursor: pointer; }
+</style>
 </head>
 <body>
-  <main class="card" role="main">
-    <header>
-      <h1>Event Timers — Enxtinct & Galactic</h1>
-      <p class="lead">Countdowns and notifications for:<br>
-      • <strong>Enxtinct Event</strong>: every 2 hours<br>
-      • <strong>Galactic Event</strong>: every 1 hour</p>
-      <button id="settingsBtn">⚙️ Settings</button>
-    </header>
+<h1>Event Notifier</h1>
+<p>Enxtinct Event: Every 2 hours</p>
+<p>Galaxy Event: Every 1 hour</p>
+<button id="settingsBtn">Settings</button>
 
-    <section class="grid">
-      <div class="panel">
-        <h2>Enxtinct Event</h2>
-        <div style="display:flex;justify-content:center;align-items:center;gap:10px;margin-top:12px">
-          <div class="countdown" id="enxtinctCountdown">—</div>
-          <div id="enxtinctStatus" class="status" style="display:none">LIVE</div>
-        </div>
-        <div class="note" id="enxtinctExact">—</div>
-      </div>
+<audio id="klingel" src="https://www.soundjay.com/button/sounds/button-16.mp3" preload="auto"></audio>
 
-      <div class="panel">
-        <h2>Galactic Event</h2>
-        <div style="display:flex;justify-content:center;align-items:center;gap:10px;margin-top:12px">
-          <div class="countdown" id="galacticCountdown">—</div>
-          <div id="galacticStatus" class="status2" style="display:none">LIVE</div>
-        </div>
-        <div class="note" id="galacticExact">—</div>
-      </div>
-    </section>
-  </main>
+<script>
+const klingel = document.getElementById('klingel');
 
-  <div id="overlay"></div>
-  <div id="settingsPanel">
-    <h2>Notification Settings</h2>
-    <label><input type="checkbox" id="notifyEnxtinct"> Enxtinct Event</label><br>
-    <label><input type="checkbox" id="notifyGalactic"> Galactic Event</label><br>
-    <label><input type="checkbox" id="notifySound" checked> Play klingeltone sound</label><br>
-    <button class="btn" id="saveSettings">Save</button>
-  </div>
-
-  <div id="customPopup">
-    <h2>Enable Notifications</h2>
-    <p>To receive messages, please allow notifications.</p>
-    <button class="btn" id="allowBtn">Allow</button>
-    <button class="btn" id="cancelBtn">Cancel</button>
-  </div>
-
-  <audio id="klingelSound">
-    <source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg">
-  </audio>
-
-  <script>
-    const pad=n=>String(n).padStart(2,'0');
-
-    function floorToBoundary(d,intervalHours){
-      const copy=new Date(d.getTime());
-      const floored=Math.floor(copy.getHours()/intervalHours)*intervalHours;
-      copy.setHours(floored,0,0,0);
-      return copy;
+// Request notification permission
+function requestNotificationPermission() {
+    if (Notification.permission !== "granted") {
+        Notification.requestPermission();
     }
+}
 
-    function computeNextStart(now,intervalHours){
-      const last=floorToBoundary(now,intervalHours);
-      const next=new Date(last.getTime()+intervalHours*3600000);
-      return {startingNow:now.getTime()===last.getTime(), next:next};
+// Play sound and send notification
+function notify(eventName) {
+    klingel.play();
+    if (Notification.permission === "granted") {
+        new Notification(eventName, { body: 'Time for the ' + eventName + '!', silent: false });
     }
+}
 
-    function formatLocal(d){return pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());}
+// Calculate next trigger based on interval and local time
+function scheduleEvent(eventName, intervalHours) {
+    const now = new Date();
+    const next = new Date();
+    next.setHours(Math.floor(now.getHours() / intervalHours) * intervalHours + intervalHours, 0, 0, 0);
+    let delay = next - now;
+    if (delay < 0) delay += intervalHours * 3600000; // fix if negative
+    
+    setTimeout(function tick() {
+        notify(eventName);
+        setTimeout(tick, intervalHours * 3600000); // repeat
+    }, delay);
+}
 
-    const enxtinctCountdown=document.getElementById('enxtinctCountdown');
-    const enxtinctExact=document.getElementById('enxtinctExact');
-    const enxtinctStatus=document.getElementById('enxtinctStatus');
-    const galacticCountdown=document.getElementById('galacticCountdown');
-    const galacticExact=document.getElementById('galacticExact');
-    const galacticStatus=document.getElementById('galacticStatus');
-    const klingelSound=document.getElementById('klingelSound');
+// Setup events
+requestNotificationPermission();
+scheduleEvent("Enxtinct Event", 2);
+scheduleEvent("Galaxy Event", 1);
 
-    // Notifications disabled by default
-    let settings={notifyEnxtinct:false,notifyGalactic:false,notifySound:true};
-
-    const settingsBtn=document.getElementById('settingsBtn');
-    const overlay=document.getElementById('overlay');
-    const settingsPanel=document.getElementById('settingsPanel');
-    const customPopup=document.getElementById('customPopup');
-    const allowBtn=document.getElementById('allowBtn');
-    const cancelBtn=document.getElementById('cancelBtn');
-
-    function loadSettings(){
-      const saved=localStorage.getItem('eventSettings');
-      if(saved) settings=JSON.parse(saved);
-      document.getElementById('notifyEnxtinct').checked=settings.notifyEnxtinct;
-      document.getElementById('notifyGalactic').checked=settings.notifyGalactic;
-      document.getElementById('notifySound').checked=settings.notifySound;
-    }
-
-    function openSettings(){loadSettings();overlay.style.display='block';settingsPanel.style.display='block';}
-    function closeSettings(){overlay.style.display='none';settingsPanel.style.display='none';customPopup.style.display='none';}
-
-    function showCustomPopup(checkbox){
-      overlay.style.display='block';
-      customPopup.style.display='block';
-      allowBtn
+// Settings button (dummy for now, can expand)
+document.getElementById('settingsBtn').addEventListener('click', () => {
+    alert('Settings can be added here!');
+});
+</script>
+</body>
+</html>
